@@ -1,13 +1,26 @@
 const express = require('express');
-const app = express();
+const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const dotenv = require('dotenv');
+
+const app = express();
+dotenv.config();
+app.use(bodyParser.json());
+
 const authRoute = require('./routes/auth');
-const verify = require('./routes/verifyToken');
+const auth = require('./middlewares/auth');
 
-mongoose.connect('stringprejenv', { useNewUrlParser: true, useUnifiedTopology: true });
+// Provide connection string from .env file
+// mongoose.connect(process.env.DB_STRING, { useNewUrlParser: true, useUnifiedTopology: true });
 
+// Authentication routes
 app.use('/api/user', authRoute);
-app.get('/asd', veriy, (req,res) => {
-    res.send("works");
+
+// Example of using auth middleware on a route
+app.get('/protected', auth, (req,res) => {
+    res.json({
+        message: "Prottected route"
+    });
 })
+
 app.listen(3000);
