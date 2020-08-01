@@ -67,7 +67,8 @@ module.exports = {
         // Create token and assign
         const token = jwt.sign( { _id: user._id }, "sekretprejenv" );
         res.header('auth-token', token).json({
-            message: "Logged in"
+            message: "Logged in",
+            token: token
         });
     }
 }
