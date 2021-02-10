@@ -1,22 +1,35 @@
 const Joi = require('@hapi/joi');
 
 // Register validation
-const registerValidation = (data) => {
-    const schema = Joi.Object({
-        name: Joi.string().min(6).max(255).required(),
+const registerValidation = async (data) => {
+    const schema = Joi.object({
         email: Joi.string().min(6).max(255).required().email(),
         password: Joi.string().min(5).required()
     })
-    return schema.validate(data, schema);
+    let result;
+    try {
+        result = await schema.validateAsync(data);
+    }
+    catch(err) {
+        result = err;
+    }
+    return result;
 }
 
 // Login validation
-const loginValidation = (data) => {
-    const schema = Joi.Object({
+const loginValidation = async (data) => {
+    const schema = Joi.object({
         email: Joi.string().min(6).max(255).required().email(),
         password: Joi.string().min(5).required()
     })
-    return schema.validate(data, schema);
+    let result;
+    try {
+        result = await schema.validateAsync(data);
+    }
+    catch(err) {
+        result = err;
+    }
+    return result;
 }
 
 module.exports.registerValidation = registerValidation;

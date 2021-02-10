@@ -6,16 +6,16 @@ const User = require('../models/User');
 const { registerValidation, loginValidation } = require('../validation/validation');
 
 module.exports = {
-    registerUser: async (req,res) => {
+    registerUser: async (req, res) => {
 
-        const { error } = registerValidation(req.body);
-        if(error) {
+        const { details } = registerValidation(req.body);
+        if(details) {
             return res.status(400).json({
-                message: error.details[0].message
+                message: details[0].message
             });
         }
     
-        const emailExist = await User.findOne({ emai: req.body.email });
+        const emailExist = await User.findOne({ email: req.body.email });
         if(emailExist) {
             return res.status(400).json({
                 message: "Email already exists!"
@@ -24,12 +24,8 @@ module.exports = {
     
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(req.body.password, salt);
-    
-        const user = new User({
-            name: req.body.name,
-            email: req.body.email,
-            password: hashedPassword
-        });
+        req.body.password = hashedPassword;
+        const user = new User(req.body);
         try {
             const savedUser = await user.save();
             res.json({
@@ -43,14 +39,14 @@ module.exports = {
     },
     loginUser: async (req,res) => {
 
-        const { error } = loginValidation(req.body);
-        if(error) {
+        const { details } = await loginValidation(req.body);
+        if(details) {
             return res.status(400).json({
-                message: error.details[0].message
+                message: details[0].message
             })
         }
     
-        const user = await User.findOne({ emai: req.body.email });
+        const user = await User.findOne({ email: req.body.email });
         if(!user) {
             return res.status(400).json({
                 message: "Incorrect email address"
@@ -65,7 +61,7 @@ module.exports = {
         }
     
         // Create token and assign
-        const token = jwt.sign( { _id: user._id }, "sekretprejenv" );
+        const token = jwt.sign( { _id: user._id }, "secret" );
         res.header('auth-token', token).json({
             message: "Logged in",
             token: token
